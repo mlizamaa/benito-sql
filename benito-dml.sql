@@ -58,76 +58,74 @@ go
 
 
 -- Procedimiento para listar todos los inventarios
-IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Inventario_Listar')
-   DROP PROCEDURE Inventario_Listar;
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'StockInventario_Listar')
+   DROP PROCEDURE StockInventario_Listar;
 GO
 
-CREATE PROCEDURE Inventario_Listar
+CREATE PROCEDURE StockInventario_Listar
 AS
 BEGIN
-    SELECT * FROM Inventario;
+    SELECT *,1 as Tipo FROM StockInventario;
 END;
 GO
 
 -- Procedimiento para obtener un inventario por ID
-IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Inventario_Obtener')
-   DROP PROCEDURE Inventario_Obtener;
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'StockInventario_Obtener')
+   DROP PROCEDURE StockInventario_Obtener;
 GO
 
-CREATE PROCEDURE Inventario_Obtener
-    @Id INT,
+CREATE PROCEDURE StockInventario_Obtener
+    @ProductoId INT,
     @tipo int
 AS
 BEGIN
-	if (@tipo = 1)
-	begin
-    	SELECT *, 1  as tipo FROM StockInventario WHERE Id = @Id;
-    end
-    else if(@tipo= 2)
-    begin
-    	SELECT *, 2 as tipo FROM SockVenta WHERE Id = @Id;
-    end
+	--if (@tipo = 1)
+	--begin
+    	SELECT Id, ProductoId , Cantidad , @tipo  as tipo FROM StockInventario WHERE ProductoId = @ProductoId;
+    --end
+    --else if(@tipo= 2)
+    --begin
+    	--SELECT *, @tipo as tipo FROM SockVenta WHERE ProductoId = @ProductoId;
+    ---end
 END;
 GO
 
 -- Procedimiento para agregar un inventario
-IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Inventario_Agregar')
-   DROP PROCEDURE Inventario_Agregar;
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'StockInventario_Agregar')
+   DROP PROCEDURE StockInventario_Agregar;
 GO
 
-CREATE PROCEDURE Inventario_Agregar
+CREATE PROCEDURE StockInventario_Agregar
     @ProductoId INT,
     @Cantidad INT,
     @Tipo INT -- Asegúrate de que el tipo de dato coincide con el tipo de tu columna Tipo
 AS
 BEGIN
-	if (@tipo = 1)
-	begin
        INSERT INTO StockInventario (ProductoId, Cantidad)
 	    VALUES (@ProductoId, @Cantidad);
-    end
-    else if(@tipo= 2) 
-    begin
-    	INSERT INTO StockVenta(ProductoId, Cantidad)
-	    VALUES (@ProductoId, @Cantidad);
-    end
-    
+	    
 END;
 GO
 
 -- Procedimiento para actualizar un inventario
-IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Inventario_Actualizar')
-   DROP PROCEDURE Inventario_Actualizar;
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'StockInventario_Actualizar')
+   DROP PROCEDURE StockInventario_Actualizar;
 GO
 
-CREATE PROCEDURE Inventario_Actualizar
+CREATE PROCEDURE StockInventario_Actualizar
     @Id INT,
     @Cantidad INT
 AS
 BEGIN
-    UPDATE Inventario
+    UPDATE StockInventario 
     SET Cantidad = @Cantidad
     WHERE Id = @Id;
+   insert into StockInventarioBitacora (
+   	StockInventarioId,
+   	Cantidad,
+	Detalle
+   ) values (@Id, @Cantidad, 'ACTUALIZACION')
+ 
 END;
 GO
 
