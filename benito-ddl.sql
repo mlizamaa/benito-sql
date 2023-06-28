@@ -16,10 +16,15 @@ GO
 IF OBJECT_ID(N'dbo.Ventas', N'U') IS NOT NULL  
    DROP TABLE [dbo].[Ventas];  
 GO
-IF OBJECT_ID(N'dbo.Productos', N'U') IS NOT NULL  
-   DROP TABLE [dbo].[Productos];  
+IF OBJECT_ID(N'dbo.ItemVenta', N'U') IS NOT NULL  
+   DROP TABLE [dbo].[ItemVenta];  
 GO
-
+IF OBJECT_ID(N'dbo.Venta', N'U') IS NOT NULL  
+   DROP TABLE [dbo].[Venta];  
+GO
+IF OBJECT_ID(N'dbo.Producto', N'U') IS NOT NULL  
+   DROP TABLE [dbo].[Producto];  
+GO
 
 CREATE TABLE Usuarios (
     Id INT PRIMARY KEY,
@@ -29,7 +34,7 @@ CREATE TABLE Usuarios (
 );
 go
 
-CREATE TABLE Productos (
+CREATE TABLE Producto (
   Id INT PRIMARY KEY IDENTITY(1,1),
   CodigoBarra VARCHAR(255),
   UnidadMedida VARCHAR(255),
@@ -51,7 +56,7 @@ CREATE TABLE StockInventario (
     Id INT PRIMARY KEY IDENTITY(1,1),
     ProductoId INT,
     Cantidad INT,
-    FOREIGN KEY (ProductoId) REFERENCES Productos(Id)
+    FOREIGN KEY (ProductoId) REFERENCES Producto(Id)
 );
 go
 
@@ -59,7 +64,7 @@ CREATE TABLE StockVenta (
     Id INT PRIMARY KEY IDENTITY(1,1),
     ProductoId INT,
     Cantidad INT,
-    FOREIGN KEY (ProductoId) REFERENCES Productos(Id)
+    FOREIGN KEY (ProductoId) REFERENCES Producto(Id)
 );
 go
 
@@ -81,9 +86,28 @@ CREATE TABLE StockVentaBitacora (
 );
 go
 
-CREATE TABLE Ventas (
+CREATE TABLE Venta (
     Id INT PRIMARY KEY IDENTITY(1,1),
-    FechaVenta DATETIME
+    FecVenta DATETIME,
+    MontoNeto FLOAT,
+    MontoBruto FLOAT,
+    Iva FLOAT
 );
 
 go
+
+CREATE TABLE ItemVenta (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    VentaId INT,
+    ProductoId INT,
+    Detalle VARCHAR(128),
+    Cantidad INT,
+    FechaVenta DATETIME,
+    MontoNeto FLOAT,
+    MontoBruto FLOAT,
+    Iva FLOAT,
+    FOREIGN KEY (VentaId) REFERENCES Venta(Id),
+    FOREIGN KEY (ProductoId) REFERENCES Producto(Id)
+);
+
+go 

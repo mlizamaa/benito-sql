@@ -9,7 +9,7 @@ BEGIN
     INSERT INTO Usuarios (Nombre, Usuario, Contraseña)
     VALUES (@Nombre, @Usuario, @Contrasena)
 END
-go
+go 
 
 drop procedure if exists Producto_Agregar
 go
@@ -29,7 +29,7 @@ CREATE PROCEDURE Producto_Agregar(
 )
 AS
 BEGIN
-  INSERT INTO Producto (CodigoBarra, UnidadMedida, Precio, PrecioOferta, Oferta, Nombre, Cantidad, Unidad, Marca, Tamano, Imagen, CodTipo)
+  INSERT INTO Producto (CodigoBarra, UnidadMedida, Precio, PrecioOferta, McaOferta, Nombre, Cantidad, Unidad, Marca, Tamano, Imagen, CodTipo)
   VALUES (@CodigoBarra, @UnidadMedida, @Precio, @PrecioOferta, @McaOferta, @Nombre, @Cantidad, @Unidad, @Marca, @Tamano, @Imagen, @CodTipo);
 END;
 
@@ -52,7 +52,7 @@ BEGIN
     		Tamano, 
     		Imagen, 
     		CodTipo
-    from Productos p 
+    from Producto p 
 END
 go
 
@@ -65,7 +65,11 @@ GO
 CREATE PROCEDURE StockInventario_Listar
 AS
 BEGIN
-    SELECT *,1 as Tipo FROM StockInventario;
+    SELECT 	Id,
+   			ProductoId,
+   			Cantidad,
+   			1 as Tipo 
+   	FROM StockInventario;
 END;
 GO
 
@@ -141,8 +145,107 @@ BEGIN
     DELETE FROM Inventario WHERE Id = @Id;
 END;
 GO
+
+-- insertar una venta
+IF EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'Venta_Insertar')
+   DROP PROCEDURE Venta_Insertar;
+GO
+
+CREATE PROCEDURE Venta_Insertar
+	@jsonVenta NVARCHAR(MAX),
+	@jsonDetalle NVARCHAR(MAX)
+AS
+BEGIN
+	declare @ventaid int,
+			@ahora DATETIME
+    INSERT INTO Venta (FecVenta,
+    	MontoNeto,
+    	MontoBruto,
+    	Iva) 
+    SELECT GETDATE(),
+    		MontoNeto,
+    		MontoBruto,
+    		Iva
+   	FROM OPENJSON(@jsonVenta) WITH (
+		MontoNeto 	FLOAT '$.MontoNeto',
+		MontoBruto 	FLOAT '$.MontoBruto',
+		Iva 	FLOAT '$.Iva'
+    )
+
+    SET @ventaid = @@identity
+    SET @ahora = GETDATE()
+    
+    insert into ItemVenta (
+	    VentaId,
+	    ProductoId,
+	    Detalle,
+	    Cantidad,
+	    FechaVenta,
+	    MontoNeto,
+	    MontoBruto,
+	    Iva
+    )  
+    SELECT  @ventaid,
+		    ProductoId,
+		    Detalle,
+		    Cantidad,
+		    @ahora,
+		    MontoNeto,
+		    MontoBruto,
+		    Iva
+		FROM OPENJSON(@jsonDetalle) WITH (
+		    ProductoId 	INT '$.ProductoId',
+		    Detalle 	VARCHAR(128) '$.Detalle',
+		    Cantidad 	INT '$.Cantidad',
+			MontoNeto 	FLOAT '$.MontoNeto',
+			MontoBruto 	FLOAT '$.MontoBruto',
+			Iva 	FLOAT '$.Iva'
+		    
+		    )
+		 SELECT Id,
+				fecVenta as FechaVenta,
+				MontoNeto,
+				MontoBruto,
+				Iva
+		FROM Venta 
+		WHERE id = @ventaId
+END;
+GO
 /*
-select * from Productos p  sv  
+exec Venta_Insertar '
+	[
+		{
+			"productoId":"1",
+			"detalle":"producto 1",
+			"cantidad":"1",
+			"montoNeto":"1000",
+			"montoBruto":"1190",
+			"iva":"190"
+	
+ 	},{
+
+			"productoId":"1",
+			"detalle":"producto 1",
+			"cantidad":"1",
+			"montoNeto":"1000",
+			"montoBruto":"1190",
+			"iva":"190"
+	
+ 	},{
+
+			"productoId":"2",
+			"detalle":"producto 2",
+			"cantidad":"1",
+			"montoNeto":"1000",
+			"montoBruto":"1190",
+			"iva":"190"
+	
+ 	}]'*/
+
+
+/*
+select * from Producto p  sv  
 select * from StockInventario si 
 select * from StockVenta sv 
+select * from itemventa
 */

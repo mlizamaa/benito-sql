@@ -1,4 +1,4 @@
-INSERT INTO Productos (CodigoBarra, UnidadMedida, Precio, PrecioOferta, McaOferta, Nombre, Cantidad, Unidad, Marca, Tamano, Imagen, CodTipo)
+INSERT INTO Producto (CodigoBarra, UnidadMedida, Precio, PrecioOferta, McaOferta, Nombre, Cantidad, Unidad, Marca, Tamano, Imagen, CodTipo)
 VALUES
   ('7801100024567', 'unidad', 699, 499, 1, 'Leche descremada', 0, 'litro', 'Soprole', 'Familiar', 'assets/images/gallery/chair2.jpg', 'Lacteos'),
   ('7802322002082', 'unidad', 299, NULL, 0, 'Salsa de tomate', 0, 'frasco', 'Natura', 'Pequeño', 'assets/images/gallery/chair4.jpg', 'Salsas'),
